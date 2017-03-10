@@ -8,6 +8,7 @@ output: html_document
 
 ## Loading the data
 
+Caroline why do you have so many tabs open. 
 
 ```{r, include=FALSE}
 load("house_elections.rda")
