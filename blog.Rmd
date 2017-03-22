@@ -17,6 +17,48 @@ load("committees.rda")
 load("contributions.rda")
 ```
 
-#I am trying to understand this
 ```{r}
+library(dplyr)
+library(ggplot2)
 ```
+##We intend to join the contribution table and the candidate table so that we can visualise where the two major political parties recieve their money from (i.e. individuals, committees etc.).
+```{r}
+#Here, we used select to look at only certain columns from the contributions table, and we grouped by entity type.
+contrib <- contributions %>%
+  select(entity_type, transaction_amt, cand_id) %>%
+  group_by(entity_type)
+contrib 
+```
+
+```{r}
+#We again selected certain columns from this data set. We noticed that the contributions and candidates tables had the column "cand_id" in common. So, we needed both the cand_id column in order to join, and we needed the data from the party affiliation column in order to visualize how much money was given to each party.
+candid <- candidates %>%
+  select(cand_party_affiliation, cand_id)
+candid
+```
+
+```{r}
+#Here, we joined the two tables by "cand_id", the column that the candidates and contributions table had in common. We used a left join because we wanted to keep the data from the contributions table to remain, but wanted to add data from the candidates table.
+money <- contrib %>%
+  left_join(candid, by = "cand_id")
+money
+```
+```{r}
+#In order to see how much each entity type contributed, we needed to make a new column that displayed this, 
+com_con <- money %>%
+  mutate("total_contribution" = sum(n())) 
+com_con
+```
+```{r}
+vis <- ggplot(data = com_con, aes(x = entity_type, fill = total_contribution)) +
+  geom_bar() +
+  ggtitle("Committee Contribution By Party") +
+  xlab("Entity Type") +
+  ylab("Contribution Amount") +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  scale_y_continuous(breaks=c(50000, 100000, 150000, 200000),
+                     labels=c("$50,000", "$100,000", "$150,000", "$200,000"))
+vis
+```
+
