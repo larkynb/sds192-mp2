@@ -5,11 +5,7 @@ date: "March 24, 2017"
 output: html_document
 ---
 
-## Loading the data
-
-Caroline why do you have so many tabs open. 
-
-```{r, include=FALSE}
+```{r, message=FALSE, warning=FALSE, include=FALSE}
 load("house_elections.rda")
 load("candidates.rda")
 load("committees.rda")
@@ -18,10 +14,14 @@ library(dplyr)
 library(ggplot2)
 ```
 
-```{r}
+```{r, message=FALSE, warning=FALSE, include=FALSE}
 library(dplyr)
 library(ggplot2)
+library(ggthemes)
 ```
+
+![](http://www.mememaker.net/static/images/memes/4451528.jpg)
+
 ##We intend to join the contribution table and the candidate table so that we can visualise where the two major political parties recieve their money from (i.e. individuals, committees etc.).
 ```{r}
 #Here, we used select to look at only certain columns from the contributions table, and we grouped by entity type.
@@ -45,21 +45,40 @@ money <- contrib %>%
 money
 ```
 ```{r}
-#In order to see how much each entity type contributed, we need to make a new column that displays this, 
+#In order to see how much each entity type contributed, we need to make a new column that displays this, and we needed to group by entity type and party affiliation.
 com_con <- money %>%
-  mutate("total_contribution" = sum(n())) 
+  filter(cand_party_affiliation == "DEM" | cand_party_affiliation == "REP") %>%
+  group_by(entity_type, cand_party_affiliation) %>%
+  summarize(total_contribution = sum(transaction_amt)) %>%
+  filter(total_contribution != 70805827 & total_contribution != 54333878)
 com_con
+
+#table(money$entity_type)
 ```
+
+
 ```{r}
-vis <- ggplot(data = com_con, aes(x = entity_type, fill = total_contribution)) +
-  geom_bar() +
+vis <- ggplot(data = com_con, aes(x = entity_type, y = total_contribution, fill = cand_party_affiliation)) +
+  geom_bar(stat = "identity") +
   ggtitle("Committee Contribution By Party") +
   xlab("Entity Type") +
   ylab("Contribution Amount") +
   theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
-  scale_y_continuous(breaks=c(50000, 100000, 150000, 200000),
-                     labels=c("$50,000", "$100,000", "$150,000", "$200,000"))
+        panel.grid.minor = element_blank(),
+        axis.title.x = element_text(size = 18),
+        axis.title.y = element_text(size = 18)) +
+ guides(fill=guide_legend(title="Party")) +
+  scale_fill_manual(guide_legend, values=c("Blue", "Red"), 
+                    labels=c("Democrat", "Republican")) +
+  scale_y_continuous(breaks=c(0.00e+00, 2.50e+08, 5.00e+08, 7.50e+08, 1.00e+09, 1.25e+09), 
+                     labels=c("$0", "$250,000,000", "$500,000,000", "$750,000,000", "$1,000,000,000","$1,250,000,000")) +
+  theme_economist_white()
+  
 vis
+```
+#The data tells us the total contributions made by committees for the Democratic and Republican parties.
+
+```{r}
+
 ```
 
