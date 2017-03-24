@@ -22,7 +22,12 @@ library(ggthemes)
 
 ![](http://www.mememaker.net/static/images/memes/4451528.jpg)
 
-##We intend to join the contribution table and the candidate table so that we can visualise where the two major political parties recieve their money from (i.e. individuals, committees etc.).
+
+
+
+####Our data is taken from the Federal Election Commission, and we focused on archived data from the 2011-2012 election. The “entity_types” are the sources of the contributions, essentially they are the different committees.
+
+####We intend to join the contribution table and the candidate table so that we can visualise where the two major political parties recieve their money from (i.e. individuals, committees etc.).
 ```{r}
 #Here, we used select to look at only certain columns from the contributions table, and we grouped by entity type.
 contrib <- contributions %>%
@@ -66,12 +71,14 @@ vis <- ggplot(data = com_con, aes(x = entity_type, y = total_contribution, fill 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         axis.title.x = element_text(size = 18),
-        axis.title.y = element_text(size = 18)) +
+        axis.title.y = element_text(size = 18),
+        axis.text.x = element_text(angle = 70)) +
  guides(fill=guide_legend(title="Party")) +
   scale_fill_manual(guide_legend, values=c("Blue", "Red"), 
                     labels=c("Democrat", "Republican")) +
   scale_y_continuous(breaks=c(0.00e+00, 2.50e+08, 5.00e+08, 7.50e+08, 1.00e+09, 1.25e+09), 
                      labels=c("$0", "$250,000,000", "$500,000,000", "$750,000,000", "$1,000,000,000","$1,250,000,000")) +
+  scale_x_discrete(breaks=c("CAN", "CCM", "COM", "IND", "ORG", "PAC", "PTY"), labels=c("Candidate", "Candidate Committee", "Committee", "Individual", "Organization", "Political Action Committee", "Party Organization")) +
   theme_economist_white()
   
 vis
