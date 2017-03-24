@@ -1,6 +1,6 @@
 ---
 title: "Mini-Project 2"
-author: "Caroline, Larkyn, Patience"
+author: "Caroline, Larkyn, & Patience"
 date: "March 24, 2017"
 output: html_document
 ---
@@ -27,9 +27,10 @@ library(ggthemes)
 
 ####Our data is taken from the Federal Election Commission, and we focused on archived data from the 2011-2012 election. The “entity_types” are the sources of the contributions, essentially they are the different committees.
 
-####We intend to join the contribution table and the candidate table so that we can visualise where the two major political parties recieve their money from (i.e. individuals, committees etc.).
+####We intend to join the contribution table and the candidate table so that we can visualise where the two major political parties recieve their money from, for example, candidate committees, individuals, Political Action Committees, etc. 
+
 ```{r}
-#Here, we used select to look at only certain columns from the contributions table, and we grouped by entity type.
+#Here, we used select to look at only the certain columns from the contributions table that will be necessary, including the cand_id which we will be using to join with the candidates table, the entity type, or where money is being contributed to, and the amount that was contributed, or the transaction amount.
 contrib <- contributions %>%
   select(entity_type, transaction_amt, cand_id) %>%
   group_by(entity_type)
@@ -37,20 +38,21 @@ contrib
 ```
 
 ```{r}
-#We again selected certain columns from this data set. We noticed that the contributions and candidates tables had the column "cand_id" in common. So, we needed both the cand_id column in order to join, and we needed the data from the party affiliation column in order to visualize how much money was given to each party.
+#We again selected the columns from this data set that will be necessary. We noticed that the contributions and candidates tables had the column "cand_id" in common. So, we needed the cand_id column to be selected in order to join, and we needed the data from the party affiliation column in order to visualize how much money was given to each party.
 candid <- candidates %>%
   select(cand_party_affiliation, cand_id)
 candid
 ```
 
 ```{r}
-#Here, we joined the two tables by "cand_id", the column that the candidates and contributions table had in common. We used a left join because we wanted to keep the data from the contributions table to remain, but wanted to add data from the candidates table.
+#Here, we joined the two tables by "cand_id", a column that the candidates table and contributions table had in common. We used a left join because we wanted to keep the data from the contributions table to remain, but wanted to add the candidate party affiliation data from the candidates table.
 money <- contrib %>%
   left_join(candid, by = "cand_id")
 money
 ```
+
 ```{r}
-#In order to see how much each entity type contributed, we need to make a new column that displays this, and we needed to group by entity type and party affiliation.
+#In order to visualize how much each candidate received from each entity type, we first filtered out the two major political parties, democrat and republican, and then grouped by entity type and candidate party affiliation. Next, we summarized that total contribution was the sum of the transaction amounts from the previous table, and after tha we filtered out the values that were given by a blank entity type. 
 com_con <- money %>%
   filter(cand_party_affiliation == "DEM" | cand_party_affiliation == "REP") %>%
   group_by(entity_type, cand_party_affiliation) %>%
@@ -63,6 +65,7 @@ com_con
 
 
 ```{r}
+#Next we used a ggplot bar chart to show our results, and broke the bar chart into the two polititcal parties. 
 vis <- ggplot(data = com_con, aes(x = entity_type, y = total_contribution, fill = cand_party_affiliation)) +
   geom_bar(stat = "identity") +
   ggtitle("Committee Contribution By Party") +
