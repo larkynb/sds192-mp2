@@ -75,20 +75,30 @@ vis <- ggplot(data = com_con, aes(x = entity_type, y = total_contribution, fill 
         panel.grid.minor = element_blank(),
         axis.title.x = element_text(size = 14),
         axis.title.y = element_text(size = 14),
-        axis.text.x = element_text(size = 12, angle = 45)) +
+        axis.text.x = element_text(size = 7, angle = 15)) +
  guides(fill=guide_legend(title="Party")) +
   scale_fill_manual(guide_legend, values=c("Blue", "Red"), 
                     labels=c("Democrat", "Republican")) +
   scale_y_continuous(breaks=c(0.00e+00, 2.50e+08, 5.00e+08, 7.50e+08, 1.00e+09, 1.25e+09), 
                      labels=c("$0", "$250,000,000", "$500,000,000", "$750,000,000", "$1,000,000,000","$1,250,000,000")) +
   scale_x_discrete(breaks=c("CAN", "CCM", "COM", "IND", "ORG", "PAC", "PTY"), labels=c("Candidate", "Candidate Committee", "Committee", "Individual", "Organization", "Political Action Committee", "Party Organization")) 
-  #theme_economist_white()
-  
 vis
 ```
-#The data tells us the total contributions made by committees for the Democratic and Republican parties.
+#This graph shows us the total contributions made by committees for the Democratic and Republican parties.
 
 ```{r}
+#Although we did not necessarily need a function to create this graph, we can write one which will retreive a list of the the amount each entity type contributed to a given "partyarg", which in this case is limited to republicans and democrats. 
+candidate_contributions <- function(partyarg) {
+  money %>%
+  filter(cand_party_affiliation == partyarg) %>%
+  group_by(entity_type, cand_party_affiliation) %>%
+  summarize(total_contribution = sum(transaction_amt)) %>%
+  filter(total_contribution != 70805827 & total_contribution != 54333878)
+}
+```
 
+```{r}
+#Below is the function in use, showing us how much each entity type contributed for democrats.
+candidate_contributions(partyarg = "DEM")
 ```
 
