@@ -76,9 +76,16 @@ vis <- ggplot(data = com_con, aes(x = entity_type, y = total_contribution, fill 
   
 vis
 ```
-#The data tells us the total contributions made by committees for the Democratic and Republican parties.
 
-```{r}
+##Context:
+Our data is taken from the Federal Election Commission, and we focused on archived data from the 2011-2012 election. The “entity_types” are the sources of the contributions, essentially they are the different committees.
 
-```
+
+##What we can Learn from the Data:
+The data tells us the total contributions made by committees for the Democratic and Republican parties.
+
+
+
+
+
 
